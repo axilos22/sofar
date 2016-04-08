@@ -1,8 +1,8 @@
 /**
-\file
-\brief
-\author(s)
-\date       08/04/2016
+\file puppet.cpp
+\brief puppet.cpp creates a puppet nodes which mimic the movement of one arm to another
+\author  AJ & BG
+\date 08/04/2016
 */
 
 //Cpp
@@ -16,27 +16,27 @@
 #include "ros/ros.h"
 
 //ROS msgs
-#include "std_msg/Int16.h"
+#include <std_msg/Int16.h>
 #include <sensor_msgs/JointState.h>
 #include <baxter_core_msgs/JointCommand.h>
 
+//By default we puppet the right arm to the left
 #define DEFAULT_ARM_RIGHT true
+#define DEFAULT_ARM_LEFT false
+#define DEFAULT_Q_SIZE 10
 
-/*
- *   You may have a number of globals declared here...
- */
 int _freq = 100;
-bool _isRightArm;
-std::string _jointName;
+bool _isRightArmPuppet, _isLeftArmPuppet;
+std::vector<std::string> _jointNameList = {"left_s0"};
 sensor_msgs::JointState _joints;
 
 /**
-  \fn <return type> <function name>(<argument list>)
-  \brief At least a one line description of any function.
+  \fn void getSensorPos(joint_state)
+  \brief This callback stores into the local variable, the updated joint list.
   */
-void getSensorPos(sensor_msgs::JointState joint_state) {
+void jointStateCallback(sensor_msgs::JointState joint_state) {
     _joints.clear();
-    _joints = joint_state;
+    //store all the joint state published into local variable
     for(int i =0;i<joint_state.size();i++) {
         _joints.name.push_back(joint_state.name[i]);
         _joints.position.push_back(joint_state.position[i]);
@@ -45,12 +45,14 @@ void getSensorPos(sensor_msgs::JointState joint_state) {
     //Here my _joint variable is up to date
 }
 /**
- * @brief performProcessing perform the change of sign to the new
+ * @brief performProcessing perform the change of sign to the new joint state
  */
 void performProcessing() {
 
 }
-
+/**
+ * @brief publish the new joint position to the puppeted arm
+ */ 
 void setSlavePos() {
 
 }
@@ -63,23 +65,18 @@ int main (int argc, char** argv)
   ROS_INFO("mirror connected to roscore");
   ros::NodeHandle nh_("~");//ROS Handler - local namespace.
 
-  nh_.param("arm",_isRightArm,DEFAULT_ARM_RIGHT);
-/*
- *   Now retrieve parameter values if any...
- */
-
-  //Subscribing
+  nh_.param("righArmPuppet",_isRightArmPuppet,DEFAULT_ARM_RIGHT);
+  nh_.param("leftArmPuppet",_isLeftArmPuppet,DEFAULT_ARM_LEFT);
   
-/*
- *   Declare here all your subscriptions.
- */
-
-  //Publishing  
-
-/*
- *   Declare here all your publications.
- */
-
+  if(_isRightArmPuppet) {
+	  ROS_INFO("Puppet arm is the right");
+  } else {
+	  ROS_INFO("Puppet arm is the left");
+  }
+  //Subscribing to the master arm joint state
+  ros::Subscriber jointsSubsciber = nh_.subscribe("jointState",DEFAULT_Q_SIZE,jointStateCallback);
+  
+  //Publishing into the slave arm joint state
 /*
  *   Perform here any initialization code you may need.
  */
@@ -87,14 +84,10 @@ int main (int argc, char** argv)
 /*
  *   Now the main lopp
  */
-
-    ros::Rate rate(_freq);
-    while (ros::ok()) {
-
-         /*
-          *   Your code goes here
-          */
-
+	ros::Rate rate(_freq);
+    while (ros::ok()) {         
+		//check for callback execution
+		//...
         ros::spinOnce();
         rate.sleep();
     }
