@@ -1,0 +1,29 @@
+<launch>
+
+<!--capture_key-->
+<node pkg="capture_key" type="capture_key_node" name="group_4_capture">
+<remap from="/key_typed" to="/group_4_key_typed"/>
+</node>
+
+<!--right_s0-->
+<node pkg="move_joint" type="move_joint_node" name="group_4_move1">
+<param name="joint_name" type="string" value="right_s0" />
+<param name="incr_key" type="int" value="112" />
+<param name="decr_key" type="int" value="109" />
+<remap from="group_4_move1/key_hit" to="/group_4_key_typed"/>
+<remap from="/joint_command" to="/robot/limb/right/joint_command"/>
+</node>
+
+<!--right_s1-->
+<node pkg="move_joint" type="move_joint_node" name="group_4_move2">
+<param name="joint_name" type="string" value="right_s1" />
+<param name="incr_key" type="int" value="119" />
+<param name="decr_key" type="int" value="120" />
+<remap from="/joint_command" to="/robot/limb/right/joint_command"/>
+<remap from="group_4_move2/key_hit" to="/group_4_key_typed"/>
+</node>
+
+
+</launch>
+
+	
