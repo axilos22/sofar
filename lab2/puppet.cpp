@@ -2,7 +2,7 @@
 \file puppet.cpp
 \brief puppet.cpp creates a puppet nodes which mimic the movement of one arm to another
 \author  AJ & BG
-\date 08/04/2016
+\date 20/04/2016
 */
 
 //Cpp
@@ -25,10 +25,10 @@
 #define DEFAULT_ARM_LEFT false
 #define DEFAULT_Q_SIZE 10
 
-int _freq = 100;
+int _freq = 1; //1Hz frequency
 bool _isRightArmPuppet, _isLeftArmPuppet;
 std::vector<std::string> _jointNameList = {"left_s0"};
-sensor_msgs::JointState _joints;
+sensor_msgs::JointState _joints,_jointsP;
 
 /**
   \fn void getSensorPos(joint_state)
@@ -48,7 +48,7 @@ void jointStateCallback(sensor_msgs::JointState joint_state) {
  * @brief performProcessing perform the change of sign to the new joint state
  */
 void performProcessing() {
-
+	_jointsP = joints;
 }
 /**
  * @brief publish the new joint position to the puppeted arm
@@ -62,7 +62,7 @@ int main (int argc, char** argv)
 {
   //ROS Initialization
   ros::init(argc, argv, "mirror");
-  ROS_INFO("mirror connected to roscore");
+  ROS_INFO("mirror process connected to roscore");
   ros::NodeHandle nh_("~");//ROS Handler - local namespace.
 
   nh_.param("righArmPuppet",_isRightArmPuppet,DEFAULT_ARM_RIGHT);
@@ -73,21 +73,19 @@ int main (int argc, char** argv)
   } else {
 	  ROS_INFO("Puppet arm is the left");
   }
-  //Subscribing to the master arm joint state
+  //declaring subscriber 
   ros::Subscriber jointsSubsciber = nh_.subscribe("jointState",DEFAULT_Q_SIZE,jointStateCallback);
-  
-  //Publishing into the slave arm joint state
-/*
- *   Perform here any initialization code you may need.
- */
-
-/*
- *   Now the main lopp
- */
+  //Perform processing to invert some joints
+  performProcessing();
+  //declaring publisher
+  ros::Publisher jointPub = nh_.advertise<sensor_msgs::JointState>("sensorPublisher",5);
 	ros::Rate rate(_freq);
-    while (ros::ok()) {         
-		//check for callback execution
-		//...
+    while (ros::ok()) {   
+    	//Subscribing to the master arm joint state -- implicit
+    	//Publishing into the slave arm joint state
+    	performProcessing();
+    	jointPub.publish(_jointsP);
+    	
         ros::spinOnce();
         rate.sleep();
     }
