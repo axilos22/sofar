@@ -48,7 +48,7 @@ void jointStateCallback(sensor_msgs::JointState joint_state) {
  * @brief performProcessing perform the change of sign to the new joint state
  */
 void performProcessing() {
-	_jointsP = joints;
+	_jointsP = _joints;
 }
 /**
  * @brief publish the new joint position to the puppeted arm
