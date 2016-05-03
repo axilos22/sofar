@@ -2,7 +2,7 @@
 \file puppet.cpp
 \brief puppet.cpp creates a puppet nodes which mimic the movement of one arm to another
 \author  AJ & BG
-\date 03/05/2016
+\date 04/05/2016
 */
 
 //Cpp
@@ -34,11 +34,12 @@ const unsigned int _freq = 10; //10Hz frequency
 int _controlMode;
 std::vector<std::string> _jointNameList ;
 sensor_msgs::JointState _joints,_jointsP;
-ros::Publisher jointPub;
+ros::Publisher _jointPub;
 
 //function for scope
 void jointStateCallback(sensor_msgs::JointState joint_state);
 void performProcessing();
+void fillJointName(std::string armSide);
 
 /**
  * @brief jointStateCallback is executed when the state of joints are published.
@@ -96,7 +97,7 @@ void performProcessing() {
         else
             msg_command.command.push_back(_jointsP.velocity[j]);
     }
-    jointPub.publish(msg_command);
+    _jointPub.publish(msg_command);
 }
 /**
  * @brief fillJointName fill the joint name list with all the joints.
@@ -159,7 +160,7 @@ int main (int argc, char** argv)
 
     //declaring publisher
     std::string jointCommandTopic = "/robot/limbs/"+_slaveArm+"/joint_command";
-    jointPub = nh_.advertise<baxter_core_msgs::JointCommand>(jointCommandTopic,5);
+    _jointPub = nh_.advertise<baxter_core_msgs::JointCommand>(jointCommandTopic,5);
     ros::Rate rate(_freq);
     while (ros::ok()) {
         ros::spinOnce();

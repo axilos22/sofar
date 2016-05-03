@@ -1,0 +1,7 @@
+<launch>
+<!--puppet Node-->
+    <node pkg="lab2Pkg" type="puppet_node" name="group_4_puppet">
+        <param name="armControlled" type="string" value="left" />
+        <param name="controlMode" type="int" value="1" />
+    </node>
+</launch>
